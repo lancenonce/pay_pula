@@ -15,6 +15,7 @@ import { encodeFunctionData } from "viem";
 import { polygonAmoy, sepolia, scrollSepolia } from "viem/chains";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import PulaABI from "../contract/Pula.json";
 
 export default function Home() {
   const [smartAccount, setSmartAccount] =
@@ -137,14 +138,11 @@ export default function Home() {
     );
 
     const stablecoinContractAddress = chains[chainSelected].PulaAddress; // Use the actual stablecoin contract address
-    const stablecoinABI = [
-      "function transfer(address to, uint256 amount) public returns (bool)",
-    ];
 
     const minTx = {
       to: stablecoinContractAddress,
       data: encodeFunctionData({
-        abi: stablecoinABI,
+        abi: PulaABI.abi,
         functionName: "transfer",
         args: [recipientAddress, ethers.utils.parseUnits(amount, 18)],
       }),
@@ -194,14 +192,11 @@ export default function Home() {
     );
 
     const stablecoinContractAddress = chains[chainSelected].PulaAddress; // Use the actual stablecoin contract address
-    const stablecoinABI = [
-      "function mint(address to, uint256 amount) public",
-    ];
 
     const minTx = {
       to: stablecoinContractAddress,
       data: encodeFunctionData({
-        abi: stablecoinABI,
+        abi: PulaABI.abi,
         functionName: "mint",
         args: [address, ethers.utils.parseUnits("50", 18)],
       }),
@@ -244,7 +239,7 @@ export default function Home() {
     );
     const contract = new ethers.Contract(
       chains[chainSelected].PulaAddress,
-      ["function balanceOf(address owner) view returns (uint256)"],
+      PulaABI.abi,
       provider
     );
 
