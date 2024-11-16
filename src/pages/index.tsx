@@ -16,6 +16,7 @@ import { polygonAmoy, sepolia, scrollSepolia } from "viem/chains";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PulaABI from "../contract/Pula.json";
+import FactoryAbi from "../contract/Factory.json";
 
 export default function Home() {
   const [smartAccount, setSmartAccount] =
@@ -98,9 +99,9 @@ export default function Home() {
         rules: [],
         interval: {
           validUntil: 0,
-          validAfter: 0,
+          validAfter: 1000,
         },
-        valueLimit: BigInt(0),
+        valueLimit: BigInt(1000000000),
       },
     ];
 
