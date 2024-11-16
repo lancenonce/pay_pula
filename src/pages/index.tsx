@@ -34,7 +34,8 @@ export default function Home() {
       chainNo: 0,
       chainId: 11155111,
       name: "Ethereum Sepolia",
-      providerUrl: "https://eth-sepolia.g.alchemy.com/v2/_CvIdH_swimSktqbU4Mk-uP6BMYAvHwR",
+      providerUrl:
+        "https://eth-sepolia.g.alchemy.com/v2/_CvIdH_swimSktqbU4Mk-uP6BMYAvHwR",
       PulaAddress: "0xE3Bc06f1A17E59519B3F6CA5a95D2C5124A6D8fC",
       biconomyPaymasterApiKey: "gJdVIBMSe.f6cc87ea-e351-449d-9736-c04c6fab56a2",
       explorerUrl: "https://sepolia.etherscan.io/tx/",
@@ -67,8 +68,10 @@ export default function Home() {
       biconomyPaymasterApiKey: "jATYV039J.d412639a-4813-40c7-aac6-ddc2030477a3",
       explorerUrl: "https://sepolia.scroll.io/tx/",
       chain: scrollSepolia,
-      bundlerUrl: "https://bundler.biconomy.io/api/v2/534353/jATYV039J.d412639a-4813-40c7-aac6-ddc2030477a3",
-      paymasterUrl: "https://paymaster.biconomy.io/api/v1/534353/jATYV039J.d412639a-4813-40c7-aac6-ddc2030477a3",
+      bundlerUrl:
+        "https://bundler.biconomy.io/api/v2/534353/jATYV039J.d412639a-4813-40c7-aac6-ddc2030477a3",
+      paymasterUrl:
+        "https://paymaster.biconomy.io/api/v1/534353/jATYV039J.d412639a-4813-40c7-aac6-ddc2030477a3",
     },
   ];
 
@@ -247,6 +250,18 @@ export default function Home() {
     setBalance(ethers.utils.formatUnits(balance, 18));
   };
 
+  const factoryAddress = "0xYourFactoryContractAddress";
+
+  const createSmartAccount = async (signer: ethers.Signer) => {
+    const factory = new ethers.Contract(factoryAddress, factoryABI, signer);
+    const tx = await factory.createSmartAccount(await signer.getAddress());
+    const receipt = await tx.wait();
+    const event = receipt.events.find(
+      (event: any) => event.event === "SmartAccountCreated"
+    );
+    return event.args.account;
+  };
+
   const connect = async () => {
     const ethereum = (window as any).ethereum;
     try {
@@ -269,6 +284,9 @@ export default function Home() {
         },
       });
 
+      const smartAccountAddress = await createSmartAccount(signer);
+      setSmartAccountAddress(smartAccountAddress);
+
       const smartWallet = await createSmartAccountClient({
         signer: signer,
         biconomyPaymasterApiKey: config.biconomyPaymasterApiKey,
@@ -277,12 +295,10 @@ export default function Home() {
         chainId: chains[chainSelected].chainId,
       });
 
-      const saAddress = await smartWallet.getAddress();
       setSmartAccount(smartWallet);
-      setSmartAccountAddress(saAddress);
 
       // Mint 50 tokens to the new smart account
-      await mintTokens(saAddress);
+      await mintTokens(smartAccountAddress);
 
       // Fetch the balance after connecting
       fetchBalance();
@@ -299,9 +315,7 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen w-full flex-col items-center justify-start gap-8 p-24">
-      <div className="text-[4rem] font-bold text-sky-400">
-        PayPula
-      </div>
+      <div className="text-[4rem] font-bold text-sky-400">PayPula</div>
 
       {!smartAccount && (
         <>
@@ -311,9 +325,7 @@ export default function Home() {
                 <div
                   key={chain.chainNo}
                   className={`w-[10rem] h-[3rem] cursor-pointer rounded-lg flex flex-row justify-center items-center text-sky-400 ${
-                    chainSelected == chain.chainNo
-                      ? "bg-white"
-                      : "bg-black"
+                    chainSelected == chain.chainNo ? "bg-white" : "bg-black"
                   } border-2 border-solid border-sky-400`}
                   onClick={() => {
                     setChainSelected(chain.chainNo);
