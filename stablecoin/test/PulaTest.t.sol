@@ -11,7 +11,7 @@ contract PulaTest is Test {
         pula = new Pula(1000000 * 10 ** 18);
     }
 
-    function testInitialSupply() public {
+    function testInitialSupply() public view {
         assertEq(pula.totalSupply(), 1000000 * 10 ** 18);
     }
 

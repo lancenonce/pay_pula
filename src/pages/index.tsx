@@ -254,7 +254,7 @@ export default function Home() {
   const factoryAddress = "0xYourFactoryContractAddress";
 
   const createSmartAccount = async (signer: ethers.Signer) => {
-    const factory = new ethers.Contract(factoryAddress, factoryABI, signer);
+    const factory = new ethers.Contract(factoryAddress, factoryABI.abi, signer);
     const tx = await factory.createSmartAccount(await signer.getAddress());
     const receipt = await tx.wait();
     const event = receipt.events.find(
