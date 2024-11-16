@@ -24,7 +24,7 @@ contract PulaSmartAccount is BaseSmartAccount, Ownable, Initializable {
     }
 
     function validateUserOp(
-        UserOperation calldata userOp,
+        PackedUserOperation calldata userOp,
         bytes32 userOpHash,
         uint256 missingAccountFunds
     ) external override returns (uint256) {
