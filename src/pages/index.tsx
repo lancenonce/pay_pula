@@ -57,6 +57,18 @@ export default function Home() {
       paymasterUrl:
         "https://paymaster.biconomy.io/api/v1/80002/TVDdBH-yz.5040805f-d795-4078-9fd1-b668b8817642",
     },
+    {
+      chainNo: 2,
+      chainId: 534353,
+      name: "Scroll Sepolia",
+      providerUrl: "https://sepolia-rpc.scroll.io",
+      incrementCountContractAdd: "0xYourContractAddressHere",
+      biconomyPaymasterApiKey: "YourBiconomyPaymasterApiKeyHere",
+      explorerUrl: "https://sepolia.scroll.io/tx/",
+      chain: "scrollSepolia", // Replace with actual chain object if available
+      bundlerUrl: "https://bundler.biconomy.io/api/v2/534353/YourBundlerApiKeyHere",
+      paymasterUrl: "https://paymaster.biconomy.io/api/v1/534353/YourPaymasterApiKeyHere",
+    },
   ];
 
   const withSponsorship = {
@@ -134,7 +146,7 @@ export default function Home() {
     };
 
     const params = await getSingleSessionTxParams(
-      //@ts-ignore
+      // @ts-ignore
       smartAccountAddress,
       chains[chainSelected].chain,
       0
