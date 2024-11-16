@@ -3,7 +3,7 @@ pragma solidity 0.8.20;
 
 import {IAccount} from "@account-abstraction/contracts/interfaces/IAccount.sol";
 import {IEntryPoint} from "@account-abstraction/contracts/interfaces/IEntryPoint.sol";
-import {UserOperationLib, UserOperation} from "@account-abstraction/contracts/interfaces/UserOperation.sol";
+import {UserOperationLib, PackedUserOperation} from "@account-abstraction/contracts/interfaces/PackedUserOperation.sol";
 import {BaseSmartAccountErrors} from "@biconomy/smart-account/contracts/common/Errors.sol";
 import "@account-abstraction/contracts/core/Helpers.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@biconomy/smart-account/contracts/smart-account/BaseSmartAccount.sol";
 
 contract PulaSmartAccount is BaseSmartAccount, Ownable, Initializable {
-    using UserOperationLib for UserOperation;
+    using UserOperationLib for PackedUserOperation;
 
     IEntryPoint private immutable _entryPoint;
 
