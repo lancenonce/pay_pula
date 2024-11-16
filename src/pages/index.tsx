@@ -22,12 +22,10 @@ import { polygonAmoy, sepolia, scrollSepolia } from "viem/chains";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PulaABI from "../contract/Pula.json";
-import FactoryAbi from "../contract/Factory.json";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const nftAddress = "0x1758f42Af7026fBbB559Dc60EcE0De3ef81f665e";
 const withSponsorship = {
   paymasterServiceData: { mode: PaymasterMode.SPONSORED },
 };
@@ -45,49 +43,54 @@ export default function Home() {
   const [balance, setBalance] = useState<string>("");
 
   const chains = [
-      {
-        chainNo: 0,
-        chainId: 11155111,
-        name: "Ethereum Sepolia",
-        providerUrl: process.env.ALCHEMY_SEPOLIA_URL,
-        PulaAddress: "0xE3Bc06f1A17E59519B3F6CA5a95D2C5124A6D8fC" as `0x${string}`,
-        biconomyPaymasterApiKey: process.env.BICONOMY_PAYMASTER_KEY_SEPOLIA,
-        explorerUrl: "https://sepolia.etherscan.io/tx/",
-        chain: sepolia,
-        bundlerUrl:
-          "https://bundler.biconomy.io/api/v2/11155111/" + process.env.BICONOMY_PAYMASTER_KEY_SEPOLIA,
-        paymasterUrl:
-          "https://paymaster.biconomy.io/api/v1/11155111/" + process.env.BICONOMY_PAYMASTER_KEY_SEPOLIA,
-      },
-      {
-        chainNo: 1,
-        chainId: 80002,
-        name: "Polygon Amoy",
-        providerUrl: "https://rpc-amoy.polygon.technology/",
-        PulaAddress: "0xfeec89eC2afD503FF359487967D02285f7DaA9aD" as `0x${string}`,
-        biconomyPaymasterApiKey: "TVDdBH-yz.5040805f-d795-4078-9fd1-b668b8817642",
-        explorerUrl: "https://www.oklink.com/amoy/tx/",
-        chain: polygonAmoy,
-        bundlerUrl:
-          "https://bundler.biconomy.io/api/v2/80002/nJPK7B3ru.dd7f7861-190d-41bd-af80-6877f74b8f44",
-        paymasterUrl:
-          "https://paymaster.biconomy.io/api/v1/80002/TVDdBH-yz.5040805f-d795-4078-9fd1-b668b8817642",
-      },
-      {
-        chainNo: 2,
-        chainId: 534353,
-        name: "Scroll Sepolia",
-        providerUrl: process.env.ALCHEMY_SCROLL_URL,
-        PulaAddress: "0x7c0E4d8cAb5A6C0d24Bc79980779fEF3FDAD4474" as `0x${string}`,
-        biconomyPaymasterApiKey: process.env.BICONOMY_PAYMASTER_KEY_SCROLL,
-        explorerUrl: "https://sepolia.scroll.io/tx/",
-        chain: scrollSepolia,
-        bundlerUrl:
-          "https://bundler.biconomy.io/api/v2/534353/" + process.env.BICONOMY_PAYMASTER_KEY_SCROLL,
-        paymasterUrl:
-          "https://paymaster.biconomy.io/api/v1/534353/" + process.env.BICONOMY_PAYMASTER_KEY_SCROLL,
-      },
-    ];
+    {
+      chainNo: 0,
+      chainId: 11155111,
+      name: "Ethereum Sepolia",
+      providerUrl:
+        "https://eth-sepolia.g.alchemy.com/v2/DsjHmw3Itl1eZnIdzuTT3OCdq-Pv293g",
+      PulaAddress: "0xE3Bc06f1A17E59519B3F6CA5a95D2C5124A6D8fC",
+      biconomyPaymasterApiKey: "bR6yJGLlA.ca82090d-ccd2-4ca3-8fe9-65b119f42570",
+      explorerUrl: "https://sepolia.etherscan.io/tx/",
+      chain: sepolia,
+      bundlerUrl:
+        "https://bundler.biconomy.io/api/v2/11155111/bR6yJGLlA.ca82090d-ccd2-4ca3-8fe9-65b119f42570",
+      paymasterUrl:
+        "https://paymaster.biconomy.io/api/v1/11155111/bR6yJGLlA.ca82090d-ccd2-4ca3-8fe9-65b119f42570",
+    },
+    {
+      chainNo: 1,
+      chainId: 80002,
+      name: "Polygon Amoy",
+      providerUrl: "https://rpc-amoy.polygon.technology/",
+      PulaAddress: "0xfeec89eC2afD503FF359487967D02285f7DaA9aD",
+      biconomyPaymasterApiKey: "TVDdBH-yz.5040805f-d795-4078-9fd1-b668b8817642",
+      explorerUrl: "https://www.oklink.com/amoy/tx/",
+      chain: polygonAmoy,
+      bundlerUrl:
+        "https://bundler.biconomy.io/api/v2/80002/nJPK7B3ru.dd7f7861-190d-41bd-af80-6877f74b8f44",
+      paymasterUrl:
+        "https://paymaster.biconomy.io/api/v1/80002/TVDdBH-yz.5040805f-d795-4078-9fd1-b668b8817642",
+    },
+    {
+      chainNo: 2,
+      chainId: 534353,
+      name: "Scroll Sepolia",
+      providerUrl: process.env.ALCHEMY_SCROLL_URL,
+      PulaAddress: "0x7c0E4d8cAb5A6C0d24Bc79980779fEF3FDAD4474",
+      biconomyPaymasterApiKey: process.env.BICONOMY_PAYMASTER_KEY_SCROLL,
+      explorerUrl: "https://sepolia.scroll.io/tx/",
+      chain: scrollSepolia,
+      bundlerUrl:
+        "https://bundler.biconomy.io/api/v2/534353/" +
+        process.env.BICONOMY_PAYMASTER_KEY_SCROLL,
+      paymasterUrl:
+        "https://paymaster.biconomy.io/api/v1/534353/" +
+        process.env.BICONOMY_PAYMASTER_KEY_SCROLL,
+    },
+  ];
+
+  console.log(chains);
 
   const createSessionWithSponsorship = async () => {
     const toastId = toast("Creating Session", { autoClose: false });
@@ -103,20 +106,17 @@ export default function Home() {
 
     try {
       const { sessionKeyAddress, sessionStorageClient } =
-        await createSessionKeyEOA(
-          smartAccount,
-          chains[chainSelected].chain
-        );
+        await createSessionKeyEOA(smartAccount, chains[chainSelected].chain);
 
       const policy: Policy[] = [
         {
           sessionKeyAddress,
-          contractAddress: chains[chainSelected].PulaAddress,
+          contractAddress: chains[chainSelected].PulaAddress as `0x${string}`,
           functionSelector: "transfer(address,uint256)",
           rules: [],
           interval: {
             validUntil: 0,
-            validAfter: 1000,
+            validAfter: 10,
           },
           valueLimit: BigInt(100000000000),
         },
@@ -165,7 +165,7 @@ export default function Home() {
         smartAccountAddress as `0x${string}`
       );
 
-      const stablecoinContractAddress = chains[chainSelected].PulaAddress; // Use the actual stablecoin contract address
+      const stablecoinContractAddress = chains[chainSelected].PulaAddress;
 
       const minTx = {
         to: stablecoinContractAddress,
@@ -214,33 +214,42 @@ export default function Home() {
     }
   };
 
-  const mintTokens = async (address: string) => {
+  const mintTokens = async () => {
     const toastId = toast("Minting Tokens", { autoClose: false });
 
     try {
+      if (!smartAccountAddress) {
+        toast.update(toastId, {
+          render: "Smart Account not initialized",
+          type: "error",
+          autoClose: 5000,
+        });
+        return;
+      }
+
       const emulatedUsersSmartAccount = await createSessionSmartAccountClient(
         {
-          accountAddress: address as `0x${string}`,
+          accountAddress: smartAccountAddress as `0x${string}`,
           bundlerUrl: chains[chainSelected].bundlerUrl,
           paymasterUrl: chains[chainSelected].paymasterUrl,
           chainId: chains[chainSelected].chainId,
         },
-        address as `0x${string}`
+        smartAccountAddress as `0x${string}`
       );
 
-      const stablecoinContractAddress = chains[chainSelected].PulaAddress; // Use the actual stablecoin contract address
+      const stablecoinContractAddress = chains[chainSelected].PulaAddress;
 
       const minTx = {
         to: stablecoinContractAddress,
         data: encodeFunctionData({
           abi: PulaABI.abi,
           functionName: "mint",
-          args: [address, ethers.utils.parseUnits("50", 18)],
+          args: [smartAccountAddress, ethers.utils.parseUnits("50", 18)],
         }),
       };
 
       const params = await getSingleSessionTxParams(
-        address as `0x${string}`, 
+        smartAccountAddress as `0x${string}`,
         chains[chainSelected].chain,
         0
       );
@@ -291,37 +300,6 @@ export default function Home() {
     setBalance(ethers.utils.formatUnits(balance, 18));
   };
 
-  const factoryAddress = "0x137DAB9C2e03402CDaC6e6Af89a0b78d4BCAb956";
-
-  const createSmartAccount = async (signer: ethers.Signer) => {
-    try {
-      console.log("Creating smart account with factory at:", factoryAddress);
-      const factory = new ethers.Contract(factoryAddress, FactoryAbi.abi, signer);
-      const ownerAddress = await signer.getAddress();
-      console.log("Owner address:", ownerAddress);
-
-      const tx = await factory.createSmartAccount(ownerAddress);
-      console.log("Transaction sent:", tx.hash);
-
-      const receipt = await tx.wait();
-      console.log("Transaction receipt:", receipt);
-
-      const event = receipt.events.find(
-        (event: any) => event.event === "SmartAccountCreated"
-      );
-
-      if (!event) {
-        throw new Error("SmartAccountCreated event not found in transaction receipt");
-      }
-
-      console.log("Smart account created at:", event.args.account);
-      return event.args.account;
-    } catch (error) {
-      console.error("Error creating smart account:", error);
-      throw error;
-    }
-  };
-
   const connect = async () => {
     try {
       let provider;
@@ -329,7 +307,9 @@ export default function Home() {
         provider = new ethers.providers.Web3Provider(window.ethereum);
         await provider.send("eth_requestAccounts", []);
       } else {
-        provider = new ethers.providers.JsonRpcProvider(process.env.ALCHEMY_SEPOLIA_URL);
+        provider = new ethers.providers.JsonRpcProvider(
+          process.env.ALCHEMY_SEPOLIA_URL
+        );
       }
       const signer = provider.getSigner();
 
@@ -348,9 +328,6 @@ export default function Home() {
         },
       });
 
-      const smartAccountAddress = await createSmartAccount(signer);
-      setSmartAccountAddress(smartAccountAddress);
-
       const smartWallet = await createSmartAccountClient({
         signer: signer,
         biconomyPaymasterApiKey: config.biconomyPaymasterApiKey,
@@ -360,9 +337,7 @@ export default function Home() {
       });
 
       setSmartAccount(smartWallet);
-
-      // Mint 50 tokens to the new smart account
-      await mintTokens(smartAccountAddress);
+      setSmartAccountAddress(await smartWallet.getAddress());
 
       // Fetch the balance after connecting
       fetchBalance();
@@ -421,6 +396,12 @@ export default function Home() {
               onClick={createSessionWithSponsorship}
             >
               Create Session
+            </button>
+            <button
+              className="w-[10rem] h-[3rem] bg-white text-sky-400 font-bold rounded-lg"
+              onClick={mintTokens}
+            >
+              Mint Tokens
             </button>
           </div>
           <div className="flex flex-col justify-center items-center gap-4">
