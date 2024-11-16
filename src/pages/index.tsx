@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   PaymasterMode,
   createSmartAccountClient,
   createSession,
-  Rule,
   Policy,
   createSessionKeyEOA,
   BiconomySmartAccountV2,
@@ -11,7 +10,6 @@ import {
   getSingleSessionTxParams,
   createBundler,
 } from "@biconomy/account";
-import { contractABI } from "../contract/contractABI";
 import { ethers } from "ethers";
 import { encodeFunctionData } from "viem";
 import { polygonAmoy, sepolia, scrollSepolia } from "viem/chains";
@@ -28,21 +26,22 @@ export default function Home() {
   const [txnHash, setTxnHash] = useState<string | null>(null);
   const [recipientAddress, setRecipientAddress] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
+  const [balance, setBalance] = useState<string>("");
 
   const chains = [
     {
       chainNo: 0,
       chainId: 11155111,
       name: "Ethereum Sepolia",
-      providerUrl: "https://eth-sepolia.public.blastapi.io",
-      PulaAddress: "0xd9ea570eF1378D7B52887cE0342721E164062f5f",
+      providerUrl: "https://eth-sepolia.g.alchemy.com/v2/_CvIdH_swimSktqbU4Mk-uP6BMYAvHwR",
+      PulaAddress: "0x849858e74B68523fe91a46c2A6dF927DEf8DE58b",
       biconomyPaymasterApiKey: "gJdVIBMSe.f6cc87ea-e351-449d-9736-c04c6fab56a2",
       explorerUrl: "https://sepolia.etherscan.io/tx/",
       chain: sepolia,
       bundlerUrl:
-        "https://bundler.biconomy.io/api/v2/11155111/nJPK7B3ru.dd7f7861-190d-41bd-af80-6877f74b8f44",
+        "https://bundler.biconomy.io/api/v2/11155111/XOj2zDzLV.b489e98f-fb47-4396-aba7-407c488b2c28",
       paymasterUrl:
-        "https://paymaster.biconomy.io/api/v1/11155111/gJdVIBMSe.f6cc87ea-e351-449d-9736-c04c6fab56a2",
+        "https://paymaster.biconomy.io/api/v1/11155111/XOj2zDzLV.b489e98f-fb47-4396-aba7-407c488b2c28",
     },
     {
       chainNo: 1,
@@ -137,7 +136,7 @@ export default function Home() {
       smartAccountAddress
     );
 
-    const stablecoinContractAddress = "0xYourStablecoinContractAddress"; // Replace with actual stablecoin contract address
+    const stablecoinContractAddress = chains[chainSelected].PulaAddress; // Use the actual stablecoin contract address
     const stablecoinABI = [
       "function transfer(address to, uint256 amount) public returns (bool)",
     ];
@@ -175,6 +174,82 @@ export default function Home() {
       type: success ? "success" : "error",
       autoClose: 5000,
     });
+
+    // Fetch the updated balance after the transaction
+    fetchBalance();
+  };
+
+  const mintTokens = async (address: string) => {
+    const toastId = toast("Minting Tokens", { autoClose: false });
+
+    const emulatedUsersSmartAccount = await createSessionSmartAccountClient(
+      {
+        //@ts-ignore
+        accountAddress: address,
+        bundlerUrl: chains[chainSelected].bundlerUrl,
+        paymasterUrl: chains[chainSelected].paymasterUrl,
+        chainId: chains[chainSelected].chainId,
+      },
+      address
+    );
+
+    const stablecoinContractAddress = chains[chainSelected].PulaAddress; // Use the actual stablecoin contract address
+    const stablecoinABI = [
+      "function mint(address to, uint256 amount) public",
+    ];
+
+    const minTx = {
+      to: stablecoinContractAddress,
+      data: encodeFunctionData({
+        abi: stablecoinABI,
+        functionName: "mint",
+        args: [address, ethers.utils.parseUnits("50", 18)],
+      }),
+    };
+
+    const params = await getSingleSessionTxParams(
+      // @ts-ignore
+      address,
+      chains[chainSelected].chain,
+      0
+    );
+
+    const { wait } = await emulatedUsersSmartAccount.sendTransaction(minTx, {
+      ...params,
+      ...withSponsorship,
+    });
+
+    const {
+      receipt: { transactionHash },
+      success,
+    } = await wait();
+
+    setTxnHash(transactionHash);
+
+    toast.update(toastId, {
+      render: success ? "Minting Successful" : "Minting Failed",
+      type: success ? "success" : "error",
+      autoClose: 5000,
+    });
+
+    // Fetch the updated balance after minting
+    fetchBalance();
+  };
+
+  const fetchBalance = async () => {
+    if (!smartAccountAddress) return;
+
+    const provider = new ethers.providers.JsonRpcProvider(
+      chains[chainSelected].providerUrl
+    );
+    const contract = new ethers.Contract(
+      chains[chainSelected].PulaAddress,
+      ["function balanceOf(address owner) view returns (uint256)"],
+      provider
+    );
+
+    const balance = await contract.balanceOf(smartAccountAddress);
+    setBalance(ethers.utils.formatUnits(balance, 18));
   };
 
   const connect = async () => {
@@ -207,13 +282,25 @@ export default function Home() {
         chainId: chains[chainSelected].chainId,
       });
 
-      setSmartAccount(smartWallet);
       const saAddress = await smartWallet.getAddress();
+      setSmartAccount(smartWallet);
       setSmartAccountAddress(saAddress);
+
+      // Mint 50 tokens to the new smart account
+      await mintTokens(saAddress);
+
+      // Fetch the balance after connecting
+      fetchBalance();
     } catch (e) {
       console.log(e);
     }
   };
+
+  useEffect(() => {
+    if (smartAccountAddress) {
+      fetchBalance();
+    }
+  }, [smartAccountAddress, chainSelected]);
 
   return (
     <main className="flex min-h-screen w-full flex-col items-center justify-start gap-8 p-24">
@@ -256,6 +343,7 @@ export default function Home() {
           <span>Smart Account Address</span>
           <span>{smartAccountAddress}</span>
           <span>Network: {chains[chainSelected].name}</span>
+          <span>Balance: {balance} PUL</span>
           <div className="flex flex-row justify-center items-start gap-4">
             <button
               className="w-[10rem] h-[3rem] bg-white text-sky-400 font-bold rounded-lg"
