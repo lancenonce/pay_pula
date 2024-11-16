@@ -35,7 +35,7 @@ export default function Home() {
       chainId: 11155111,
       name: "Ethereum Sepolia",
       providerUrl: "https://eth-sepolia.g.alchemy.com/v2/_CvIdH_swimSktqbU4Mk-uP6BMYAvHwR",
-      PulaAddress: "0x849858e74B68523fe91a46c2A6dF927DEf8DE58b",
+      PulaAddress: "0xE3Bc06f1A17E59519B3F6CA5a95D2C5124A6D8fC",
       biconomyPaymasterApiKey: "gJdVIBMSe.f6cc87ea-e351-449d-9736-c04c6fab56a2",
       explorerUrl: "https://sepolia.etherscan.io/tx/",
       chain: sepolia,
