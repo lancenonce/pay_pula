@@ -18,6 +18,8 @@ import "react-toastify/dist/ReactToastify.css";
 import PulaABI from "../contract/Pula.json";
 import FactoryAbi from "../contract/Factory.json";
 
+
+
 export default function Home() {
   const [smartAccount, setSmartAccount] =
     useState<BiconomySmartAccountV2 | null>(null);
@@ -38,13 +40,13 @@ export default function Home() {
       providerUrl:
         "https://eth-sepolia.g.alchemy.com/v2/_CvIdH_swimSktqbU4Mk-uP6BMYAvHwR",
       PulaAddress: "0xE3Bc06f1A17E59519B3F6CA5a95D2C5124A6D8fC",
-      biconomyPaymasterApiKey: "gJdVIBMSe.f6cc87ea-e351-449d-9736-c04c6fab56a2",
+      biconomyPaymasterApiKey: process.env.BICONOMY_PAYMASTER_KEY_SEPOLIA,
       explorerUrl: "https://sepolia.etherscan.io/tx/",
       chain: sepolia,
       bundlerUrl:
-        "https://bundler.biconomy.io/api/v2/11155111/XOj2zDzLV.b489e98f-fb47-4396-aba7-407c488b2c28",
+        "https://bundler.biconomy.io/api/v2/11155111/" + process.env.BICONOMY_PAYMASTER_KEY_SEPOLIA,
       paymasterUrl:
-        "https://paymaster.biconomy.io/api/v1/11155111/XOj2zDzLV.b489e98f-fb47-4396-aba7-407c488b2c28",
+        "https://paymaster.biconomy.io/api/v1/11155111/" + process.env.BICONOMY_PAYMASTER_KEY_SEPOLIA,
     },
     {
       chainNo: 1,
@@ -52,13 +54,13 @@ export default function Home() {
       name: "Polygon Amoy",
       providerUrl: "https://rpc-amoy.polygon.technology/",
       PulaAddress: "0xfeec89eC2afD503FF359487967D02285f7DaA9aD",
-      biconomyPaymasterApiKey: "TVDdBH-yz.5040805f-d795-4078-9fd1-b668b8817642",
+      biconomyPaymasterApiKey: "",
       explorerUrl: "https://www.oklink.com/amoy/tx/",
       chain: polygonAmoy,
       bundlerUrl:
-        "https://bundler.biconomy.io/api/v2/80002/nJPK7B3ru.dd7f7861-190d-41bd-af80-6877f74b8f44",
+        "https://bundler.biconomy.io/api/v2/80002/",
       paymasterUrl:
-        "https://paymaster.biconomy.io/api/v1/80002/TVDdBH-yz.5040805f-d795-4078-9fd1-b668b8817642",
+        "https://paymaster.biconomy.io/api/v1/80002/",
     },
     {
       chainNo: 2,
@@ -66,13 +68,13 @@ export default function Home() {
       name: "Scroll Sepolia",
       providerUrl: "https://sepolia-rpc.scroll.io",
       PulaAddress: "0xYourContractAddressHere",
-      biconomyPaymasterApiKey: "jATYV039J.d412639a-4813-40c7-aac6-ddc2030477a3",
+      biconomyPaymasterApiKey: process.env.BICONOMY_PAYMASTER_KEY_SCROLL,
       explorerUrl: "https://sepolia.scroll.io/tx/",
       chain: scrollSepolia,
       bundlerUrl:
-        "https://bundler.biconomy.io/api/v2/534353/jATYV039J.d412639a-4813-40c7-aac6-ddc2030477a3",
+        "https://bundler.biconomy.io/api/v2/" + process.env.BICONOMY_PAYMASTER_KEY_SCROLL,
       paymasterUrl:
-        "https://paymaster.biconomy.io/api/v1/534353/jATYV039J.d412639a-4813-40c7-aac6-ddc2030477a3",
+        "https://paymaster.biconomy.io/api/v1/" + process.env.BICONOMY_PAYMASTER_KEY_SCROLL,
     },
   ];
 
@@ -251,10 +253,10 @@ export default function Home() {
     setBalance(ethers.utils.formatUnits(balance, 18));
   };
 
-  const factoryAddress = "0xYourFactoryContractAddress";
+  const factoryAddress = "0x137DAB9C2e03402CDaC6e6Af89a0b78d4BCAb956";
 
   const createSmartAccount = async (signer: ethers.Signer) => {
-    const factory = new ethers.Contract(factoryAddress, factoryABI.abi, signer);
+    const factory = new ethers.Contract(factoryAddress, FactoryAbi.abi, signer);
     const tx = await factory.createSmartAccount(await signer.getAddress());
     const receipt = await tx.wait();
     const event = receipt.events.find(
