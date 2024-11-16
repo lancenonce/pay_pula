@@ -1,3 +1,6 @@
 [submodule "stablecoin/lib/openzeppelin-contracts"]
 	path = stablecoin/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "stablecoin/lib/scw-contracts"]
+	path = stablecoin/lib/scw-contracts
+	url = https://github.com/bcnmy/scw-contracts
