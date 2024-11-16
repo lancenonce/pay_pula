@@ -4,3 +4,6 @@
 [submodule "stablecoin/lib/scw-contracts"]
 	path = stablecoin/lib/scw-contracts
 	url = https://github.com/bcnmy/scw-contracts
+[submodule "stablecoin/lib/account-abstraction"]
+	path = stablecoin/lib/account-abstraction
+	url = https://github.com/eth-infinitism/account-abstraction
