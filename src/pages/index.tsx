@@ -38,7 +38,7 @@ export default function Home() {
       chainId: 11155111,
       name: "Ethereum Sepolia",
       providerUrl:
-        "https://eth-sepolia.g.alchemy.com/v2/_CvIdH_swimSktqbU4Mk-uP6BMYAvHwR",
+        process.env.ALCHEMY_SEPOLIA_URL,
       PulaAddress: "0xE3Bc06f1A17E59519B3F6CA5a95D2C5124A6D8fC",
       biconomyPaymasterApiKey: process.env.BICONOMY_PAYMASTER_KEY_SEPOLIA,
       explorerUrl: "https://sepolia.etherscan.io/tx/",
@@ -66,7 +66,7 @@ export default function Home() {
       chainNo: 2,
       chainId: 534353,
       name: "Scroll Sepolia",
-      providerUrl: "https://sepolia-rpc.scroll.io",
+      providerUrl: process.env.ALCHEMY_SCROLL_URL,
       PulaAddress: "0xYourContractAddressHere",
       biconomyPaymasterApiKey: process.env.BICONOMY_PAYMASTER_KEY_SCROLL,
       explorerUrl: "https://sepolia.scroll.io/tx/",
