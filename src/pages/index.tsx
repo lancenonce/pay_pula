@@ -27,6 +27,8 @@ export default function Home() {
   const [chainSelected, setChainSelected] = useState<number>(0);
   const [count, setCount] = useState<string | null>(null);
   const [txnHash, setTxnHash] = useState<string | null>(null);
+  const [recipientAddress, setRecipientAddress] = useState<string>("");
+  const [amount, setAmount] = useState<string>("");
 
   const chains = [
     {
@@ -191,23 +193,82 @@ export default function Home() {
     });
   };
 
+  const sendStablecoins = async () => {
+    const toastId = toast("Sending Stablecoins", { autoClose: false });
+
+    const emulatedUsersSmartAccount = await createSessionSmartAccountClient(
+      {
+        //@ts-ignore
+        accountAddress: smartAccountAddress,
+        bundlerUrl: chains[chainSelected].bundlerUrl,
+        paymasterUrl: chains[chainSelected].paymasterUrl,
+        chainId: chains[chainSelected].chainId,
+      },
+      smartAccountAddress
+    );
+
+    const stablecoinContractAddress = "0xYourStablecoinContractAddress"; // Replace with actual stablecoin contract address
+    const stablecoinABI = [
+      // Replace with actual stablecoin ABI
+      "function transfer(address to, uint256 amount) public returns (bool)",
+    ];
+
+    const minTx = {
+      to: stablecoinContractAddress,
+      data: encodeFunctionData({
+        abi: stablecoinABI,
+        functionName: "transfer",
+        args: [recipientAddress, ethers.utils.parseUnits(amount, 18)],
+      }),
+    };
+
+    const params = await getSingleSessionTxParams(
+      // @ts-ignore
+      smartAccountAddress,
+      chains[chainSelected].chain,
+      0
+    );
+
+    const { wait } = await emulatedUsersSmartAccount.sendTransaction(minTx, {
+      ...params,
+      ...withSponsorship,
+    });
+
+    const {
+      receipt: { transactionHash },
+      success,
+    } = await wait();
+
+    setTxnHash(transactionHash);
+
+    toast.update(toastId, {
+      render: success ? "Transfer Successful" : "Transfer Failed",
+      type: success ? "success" : "error",
+      autoClose: 5000,
+    });
+  };
+
   const connect = async () => {
     const ethereum = (window as any).ethereum;
-    try{
+    try {
       const provider = new ethers.providers.Web3Provider(ethereum);
       await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
 
       const config = {
         biconomyPaymasterApiKey: chains[chainSelected].biconomyPaymasterApiKey,
-        bundlerUrl: chains[chainSelected].bundlerUrl, 
-      }
+        bundlerUrl: chains[chainSelected].bundlerUrl,
+      };
 
       const bundler = await createBundler({
         bundlerUrl: config.bundlerUrl,
-        userOpReceiptMaxDurationIntervals: {[chains[chainSelected].chainId]: 120000},
-        userOpReceiptIntervals: {[chains[chainSelected].chainId]: 3000},
-      })
+        userOpReceiptMaxDurationIntervals: {
+          [chains[chainSelected].chainId]: 120000,
+        },
+        userOpReceiptIntervals: {
+          [chains[chainSelected].chainId]: 3000,
+        },
+      });
 
       const smartWallet = await createSmartAccountClient({
         signer: signer,
@@ -220,16 +281,15 @@ export default function Home() {
       setSmartAccount(smartWallet);
       const saAddress = await smartWallet.getAddress();
       setSmartAccountAddress(saAddress);
-
-    }catch(e){
+    } catch (e) {
       console.log(e);
     }
   };
 
   return (
     <main className="flex min-h-screen w-full flex-col items-center justify-start gap-8 p-24">
-      <div className="text-[4rem] font-bold text-orange-400">
-        Biconomy Session Key Demo
+      <div className="text-[4rem] font-bold text-sky-400">
+        PayPula
       </div>
 
       {!smartAccount && (
@@ -239,11 +299,11 @@ export default function Home() {
               return (
                 <div
                   key={chain.chainNo}
-                  className={`w-[10rem] h-[3rem] cursor-pointer rounded-lg flex flex-row justify-center items-center text-white ${
+                  className={`w-[10rem] h-[3rem] cursor-pointer rounded-lg flex flex-row justify-center items-center text-sky-400 ${
                     chainSelected == chain.chainNo
-                      ? "bg-orange-600"
+                      ? "bg-white"
                       : "bg-black"
-                  } border-2 border-solid border-orange-400`}
+                  } border-2 border-solid border-sky-400`}
                   onClick={() => {
                     setChainSelected(chain.chainNo);
                   }}
@@ -254,7 +314,7 @@ export default function Home() {
             })}
           </div>
           <button
-            className="w-[10rem] h-[3rem] bg-orange-300 text-black font-bold rounded-lg"
+            className="w-[10rem] h-[3rem] bg-white text-sky-400 font-bold rounded-lg"
             onClick={connect}
           >
             EOA Sign in
@@ -264,20 +324,19 @@ export default function Home() {
 
       {smartAccount && (
         <>
-          {" "}
           <span>Smart Account Address</span>
           <span>{smartAccountAddress}</span>
           <span>Network: {chains[chainSelected].name}</span>
           <div className="flex flex-row justify-center items-start gap-4">
             <button
-              className="w-[10rem] h-[3rem] bg-orange-300 text-black font-bold rounded-lg"
+              className="w-[10rem] h-[3rem] bg-white text-sky-400 font-bold rounded-lg"
               onClick={createSessionWithSponsorship}
             >
               Create Session
             </button>
             <div className="flex flex-col justify-start items-center gap-2">
               <button
-                className="w-[10rem] h-[3rem] bg-orange-300 text-black font-bold rounded-lg"
+                className="w-[10rem] h-[3rem] bg-white text-sky-400 font-bold rounded-lg"
                 onClick={incrementCount}
               >
                 Increment Count
@@ -288,7 +347,7 @@ export default function Home() {
                     target="_blank"
                     href={`${chains[chainSelected].explorerUrl + txnHash}`}
                   >
-                    <span className="text-white font-bold underline">
+                    <span className="text-sky-400 font-bold underline">
                       Txn Hash
                     </span>
                   </a>
@@ -298,12 +357,34 @@ export default function Home() {
           </div>
           <div className="flex flex-row justify-center items-center gap-4">
             <button
-              className="w-[10rem] h-[3rem] bg-orange-300 text-black font-bold rounded-lg"
+              className="w-[10rem] h-[3rem] bg-white text-sky-400 font-bold rounded-lg"
               onClick={getCountId}
             >
               Get Count Value
             </button>
             <span>{count}</span>
+          </div>
+          <div className="flex flex-col justify-center items-center gap-4">
+            <input
+              type="text"
+              placeholder="Recipient Address"
+              value={recipientAddress}
+              onChange={(e) => setRecipientAddress(e.target.value)}
+              className="w-[20rem] h-[3rem] p-2 border-2 border-solid border-sky-400 rounded-lg"
+            />
+            <input
+              type="text"
+              placeholder="Amount"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="w-[20rem] h-[3rem] p-2 border-2 border-solid border-sky-400 rounded-lg"
+            />
+            <button
+              className="w-[10rem] h-[3rem] bg-white text-sky-400 font-bold rounded-lg"
+              onClick={sendStablecoins}
+            >
+              Send Stablecoins
+            </button>
           </div>
         </>
       )}
