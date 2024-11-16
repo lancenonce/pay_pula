@@ -14,7 +14,7 @@ import {
 import { contractABI } from "../contract/contractABI";
 import { ethers } from "ethers";
 import { encodeFunctionData } from "viem";
-import { polygonAmoy, sepolia } from "viem/chains";
+import { polygonAmoy, sepolia, scrollSepolia } from "viem/chains";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -25,7 +25,6 @@ export default function Home() {
     null
   );
   const [chainSelected, setChainSelected] = useState<number>(0);
-  const [count, setCount] = useState<string | null>(null);
   const [txnHash, setTxnHash] = useState<string | null>(null);
   const [recipientAddress, setRecipientAddress] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
@@ -36,7 +35,7 @@ export default function Home() {
       chainId: 11155111,
       name: "Ethereum Sepolia",
       providerUrl: "https://eth-sepolia.public.blastapi.io",
-      incrementCountContractAdd: "0xd9ea570eF1378D7B52887cE0342721E164062f5f",
+      PulaAddress: "0xd9ea570eF1378D7B52887cE0342721E164062f5f",
       biconomyPaymasterApiKey: "gJdVIBMSe.f6cc87ea-e351-449d-9736-c04c6fab56a2",
       explorerUrl: "https://sepolia.etherscan.io/tx/",
       chain: sepolia,
@@ -50,7 +49,7 @@ export default function Home() {
       chainId: 80002,
       name: "Polygon Amoy",
       providerUrl: "https://rpc-amoy.polygon.technology/",
-      incrementCountContractAdd: "0xfeec89eC2afD503FF359487967D02285f7DaA9aD",
+      PulaAddress: "0xfeec89eC2afD503FF359487967D02285f7DaA9aD",
       biconomyPaymasterApiKey: "TVDdBH-yz.5040805f-d795-4078-9fd1-b668b8817642",
       explorerUrl: "https://www.oklink.com/amoy/tx/",
       chain: polygonAmoy,
@@ -64,12 +63,12 @@ export default function Home() {
       chainId: 534353,
       name: "Scroll Sepolia",
       providerUrl: "https://sepolia-rpc.scroll.io",
-      incrementCountContractAdd: "0xYourContractAddressHere",
-      biconomyPaymasterApiKey: "YourBiconomyPaymasterApiKeyHere",
+      PulaAddress: "0xYourContractAddressHere",
+      biconomyPaymasterApiKey: "jATYV039J.d412639a-4813-40c7-aac6-ddc2030477a3",
       explorerUrl: "https://sepolia.scroll.io/tx/",
-      chain: "scrollSepolia", // Replace with actual chain object if available
-      bundlerUrl: "https://bundler.biconomy.io/api/v2/534353/YourBundlerApiKeyHere",
-      paymasterUrl: "https://paymaster.biconomy.io/api/v1/534353/YourPaymasterApiKeyHere",
+      chain: scrollSepolia,
+      bundlerUrl: "https://bundler.biconomy.io/api/v2/534353/jATYV039J.d412639a-4813-40c7-aac6-ddc2030477a3",
+      paymasterUrl: "https://paymaster.biconomy.io/api/v1/534353/jATYV039J.d412639a-4813-40c7-aac6-ddc2030477a3",
     },
   ];
 
@@ -91,8 +90,8 @@ export default function Home() {
       {
         sessionKeyAddress,
         //@ts-ignore
-        contractAddress: chains[chainSelected].incrementCountContractAdd,
-        functionSelector: "increment()",
+        contractAddress: chains[chainSelected].PulaAddress,
+        functionSelector: "transfer(address,uint256)",
         rules: [],
         interval: {
           validUntil: 0,
@@ -124,75 +123,6 @@ export default function Home() {
     });
   };
 
-  const incrementCount = async () => {
-    const toastId = toast("Incrementing Count", { autoClose: false });
-
-    const emulatedUsersSmartAccount = await createSessionSmartAccountClient(
-      {
-        //@ts-ignore
-        accountAddress: smartAccountAddress,
-        bundlerUrl: chains[chainSelected].bundlerUrl,
-        paymasterUrl: chains[chainSelected].paymasterUrl,
-        chainId: chains[chainSelected].chainId,
-      },
-      smartAccountAddress
-    );
-
-    const minTx = {
-      to: chains[chainSelected].incrementCountContractAdd,
-      data: encodeFunctionData({
-        abi: contractABI,
-        functionName: "increment",
-        args: [],
-      }),
-    };
-
-    const params = await getSingleSessionTxParams(
-      // @ts-ignore
-      smartAccountAddress,
-      chains[chainSelected].chain,
-      0
-    );
-
-    const { wait } = await emulatedUsersSmartAccount.sendTransaction(minTx, {
-      ...params,
-      ...withSponsorship,
-    });
-
-    const {
-      receipt: { transactionHash },
-      success,
-    } = await wait();
-
-    setTxnHash(transactionHash);
-
-    toast.update(toastId, {
-      render: "Session Creation Successful",
-      type: "success",
-      autoClose: 5000,
-    });
-  };
-
-  const getCountId = async () => {
-    const toastId = toast("Getting Count", { autoClose: false });
-    const contractAddress = chains[chainSelected].incrementCountContractAdd;
-    const provider = new ethers.providers.JsonRpcProvider(
-      chains[chainSelected].providerUrl
-    );
-    const contractInstance = new ethers.Contract(
-      contractAddress,
-      contractABI,
-      provider
-    );
-    const countId = await contractInstance.getCount();
-    setCount(countId.toString());
-    toast.update(toastId, {
-      render: "Successful",
-      type: "success",
-      autoClose: 5000,
-    });
-  };
-
   const sendStablecoins = async () => {
     const toastId = toast("Sending Stablecoins", { autoClose: false });
 
@@ -209,7 +139,6 @@ export default function Home() {
 
     const stablecoinContractAddress = "0xYourStablecoinContractAddress"; // Replace with actual stablecoin contract address
     const stablecoinABI = [
-      // Replace with actual stablecoin ABI
       "function transfer(address to, uint256 amount) public returns (bool)",
     ];
 
@@ -334,35 +263,6 @@ export default function Home() {
             >
               Create Session
             </button>
-            <div className="flex flex-col justify-start items-center gap-2">
-              <button
-                className="w-[10rem] h-[3rem] bg-white text-sky-400 font-bold rounded-lg"
-                onClick={incrementCount}
-              >
-                Increment Count
-              </button>
-              <span>
-                {txnHash && (
-                  <a
-                    target="_blank"
-                    href={`${chains[chainSelected].explorerUrl + txnHash}`}
-                  >
-                    <span className="text-sky-400 font-bold underline">
-                      Txn Hash
-                    </span>
-                  </a>
-                )}
-              </span>
-            </div>
-          </div>
-          <div className="flex flex-row justify-center items-center gap-4">
-            <button
-              className="w-[10rem] h-[3rem] bg-white text-sky-400 font-bold rounded-lg"
-              onClick={getCountId}
-            >
-              Get Count Value
-            </button>
-            <span>{count}</span>
           </div>
           <div className="flex flex-col justify-center items-center gap-4">
             <input
@@ -370,14 +270,14 @@ export default function Home() {
               placeholder="Recipient Address"
               value={recipientAddress}
               onChange={(e) => setRecipientAddress(e.target.value)}
-              className="w-[20rem] h-[3rem] p-2 border-2 border-solid border-sky-400 rounded-lg"
+              className="w-[20rem] h-[3rem] p-2 border-2 border-solid border-sky-400 rounded-lg text-black"
             />
             <input
               type="text"
               placeholder="Amount"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="w-[20rem] h-[3rem] p-2 border-2 border-solid border-sky-400 rounded-lg"
+              className="w-[20rem] h-[3rem] p-2 border-2 border-solid border-sky-400 rounded-lg text-black"
             />
             <button
               className="w-[10rem] h-[3rem] bg-white text-sky-400 font-bold rounded-lg"
@@ -385,6 +285,18 @@ export default function Home() {
             >
               Send Stablecoins
             </button>
+            <span>
+              {txnHash && (
+                <a
+                  target="_blank"
+                  href={`${chains[chainSelected].explorerUrl + txnHash}`}
+                >
+                  <span className="text-sky-400 font-bold underline">
+                    Txn Hash
+                  </span>
+                </a>
+              )}
+            </span>
           </div>
         </>
       )}
