@@ -101,7 +101,7 @@ export default function Home() {
           validUntil: 0,
           validAfter: 1000,
         },
-        valueLimit: BigInt(1000000000),
+        valueLimit: BigInt(100000000000),
       },
     ];
 
