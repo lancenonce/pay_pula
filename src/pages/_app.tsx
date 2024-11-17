@@ -1,12 +1,28 @@
-import "@/styles/globals.css";
-import type { AppProps } from "next/app";
-import { ToastContainer } from "react-toastify";
+import '@/styles/globals.css'
+import type { AppProps } from 'next/app'
+import { WagmiProvider, createConfig, http } from 'wagmi'
+import { sepolia } from 'viem/chains'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { injected } from 'wagmi/connectors'
+
+const config = createConfig({
+  chains: [sepolia],
+  transports: {
+    [sepolia.id]: http(),
+  },
+  connectors: [
+    injected()
+  ],
+})
+
+const queryClient = new QueryClient()
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <div>
-      <ToastContainer />
-      <Component {...pageProps} />
-    </div>
-  );
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <Component {...pageProps} />
+      </QueryClientProvider>
+    </WagmiProvider>
+  )
 }
