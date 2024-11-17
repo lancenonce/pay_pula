@@ -1,0 +1,10 @@
+{
+    "networks": {
+        "holesky": {
+            "firewall": "0xYourFirewallAddress",
+            "contracts": {
+                "Pula": "0xYourPulaContractAddress"
+            }
+        }
+    }
+}
