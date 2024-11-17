@@ -1,4 +1,4 @@
-# PayPula: Biconomy Sessions Keys with Next.js
+# 🇧🇼 PayPula: Biconomy Sessions Keys with Next.js
 
 This is a [Next.js](https://nextjs.org/) project that demonstrates the creation and use of a session for gasless transactions. It allows you to interact with a smart contract on the Scroll and Ethereum Sepolia test networks and execute a transaction to increment count.
 
