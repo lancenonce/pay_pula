@@ -63,6 +63,11 @@ This project utilizes Biconomy session keys to sign transactions with ERC-4337. 
 - PulaSmartAccount implementation deployed at: `0xE3Bc06f1A17E59519B3F6CA5a95D2C5124A6D8fC`
 - PulaSmartAccountFactory deployed at: `0x7c0E4d8cAb5A6C0d24Bc79980779fEF3FDAD4474`
 
+#### Mantle Testnet:
+- Pula deployed at: 0x849858e74B68523fe91a46c2A6dF927DEf8DE58b
+- PulaSmartAccount implementation deployed at: 0xE3Bc06f1A17E59519B3F6CA5a95D2C5124A6D8fC
+- PulaSmartAccountFactory deployed at: 0x7c0E4d8cAb5A6C0d24Bc79980779fEF3FDAD4474
+
 ## Learn More
 
 To learn more about the technologies used in this project, check out the following resources:
