@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@biconomy/account": "^4.5.4",
+    "@biconomy/sdk": "^0.0.10",
     "ethers": "^5.7.2",
     "next": "14.2.5",
     "react": "^18",

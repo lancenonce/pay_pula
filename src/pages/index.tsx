@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from "react";
+import {
+  UserOperationReceipt,
+  WaitForUserOperationReceiptReturnType,
+} from "viem/account-abstraction";
 
 declare global {
   interface Window {
@@ -17,12 +21,24 @@ import {
   createBundler,
 } from "@biconomy/account";
 import { ethers } from "ethers";
-import { encodeFunctionData } from "viem";
+import { encodeFunctionData, TransactionReceipt } from "viem";
 import { polygonAmoy, sepolia, scrollSepolia } from "viem/chains";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PulaABI from "../contract/Pula.json";
 import dotenv from "dotenv";
+import {
+  createBicoPaymasterClient,
+  createNexusClient,
+  createNexusSessionClient,
+  CreateSessionDataParams,
+  grantPermission,
+  NexusClient,
+  smartSessionCreateActions,
+  smartSessionUseActions,
+  toSmartSessionsValidator,
+  usePermission,
+} from "@biconomy/sdk";
 
 dotenv.config();
 
@@ -38,9 +54,17 @@ export default function Home() {
   );
   const [chainSelected, setChainSelected] = useState<number>(0);
   const [txnHash, setTxnHash] = useState<string | null>(null);
+  const [nexusClient, setNexusClient] = useState<NexusClient | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [recipientAddress, setRecipientAddress] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
   const [balance, setBalance] = useState<string>("");
+  const [receipt, setReceipt] = useState<
+    | TransactionReceipt
+    | UserOperationReceipt
+    | WaitForUserOperationReceiptReturnType
+    | null
+  >(null);
 
   const chains = [
     {
@@ -91,6 +115,23 @@ export default function Home() {
   ];
 
   console.log(chains);
+
+  const sendUserOp = async () => {
+    setIsLoading(true);
+    console.log(nexusClient, "nexusClient");
+    const hash = await nexusClient?.sendTransaction({
+      calls: [
+        {
+          to: "0x00000004171351c442B202678c48D8AB5B321E8f",
+          data: "0x",
+        },
+      ],
+    });
+
+    const receipt = await nexusClient?.waitForTransactionReceipt({ hash });
+    setReceipt(receipt);
+    setIsLoading(false);
+  };
 
   const createSessionWithSponsorship = async () => {
     const toastId = toast("Creating Session", { autoClose: false });
